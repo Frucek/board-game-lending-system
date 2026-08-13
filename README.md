@@ -70,7 +70,7 @@ Spletna aplikacija, prek katere uporabnik dostopa do sistema.
                Catalog Users
 
 
-
+```mermaid
 flowchart TD
 
     User[User]
@@ -97,7 +97,7 @@ flowchart TD
     Catalog --> CatalogDB
     Borrowing --> BorrowingDB
     Users --> UsersDB
-
+```
 
 
 
