@@ -7,6 +7,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: game_catalog
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d game_catalog"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
     defaults:
       run:
         working-directory: game-catalog-service
@@ -24,3 +39,7 @@ jobs:
 
       - name: Run tests
         run: ./mvnw test
+        env:
+          SPRING_R2DBC_URL: r2dbc:postgresql://localhost:5432/game_catalog
+          SPRING_R2DBC_USERNAME: postgres
+          SPRING_R2DBC_PASSWORD: postgres
