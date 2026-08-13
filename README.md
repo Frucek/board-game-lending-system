@@ -1,17 +1,5 @@
 # Board Game Lending System
 
-# Board Game Lending System
-
-1. Opis projekta
-2. Glavne funkcionalnosti
-3. Mikrostoritve
-4. Arhitektura sistema
-5. Komunikacija med storitvami
-6. Tehnologije
-7. Struktura repozitorija
-8. API
-
-
 ## Opis projekta
 
 Board Game Lending System je mikrostoritveni sistem za izposojo družabnih iger.
