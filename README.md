@@ -45,6 +45,7 @@ Spletna aplikacija, prek katere uporabnik dostopa do sistema.
 | User Management | Uporabniki, status, omejitve izposoje |
 
 
+## Tehnologije
 
 
 | Component        | Technology         |
@@ -55,6 +56,10 @@ Spletna aplikacija, prek katere uporabnik dostopa do sistema.
 | Web UI           | React + TypeScript |
 | Databases        | PostgreSQL         |
 | Containerization | Docker             |
+
+
+
+## Komunikacija med storitvami
 
 
                  Web UI
@@ -68,6 +73,9 @@ Spletna aplikacija, prek katere uporabnik dostopa do sistema.
                 REST gRPC
                   ↓   ↓
                Catalog Users
+
+
+## Arhitektura sistema
 
 
 ```mermaid
