@@ -58,7 +58,6 @@ Spletna aplikacija, prek katere uporabnik dostopa do sistema.
 | Containerization | Docker             |
 
 
-
 ## Komunikacija med storitvami
 
 
