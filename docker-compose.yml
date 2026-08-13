@@ -1,0 +1,29 @@
+services:
+
+  game-catalog-db:
+    image: postgres:16
+    container_name: game-catalog-db
+    environment:
+      POSTGRES_DB: game_catalog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - game_catalog_data:/var/lib/postgresql/data
+
+  game-catalog-service:
+    build:
+      context: ./game-catalog-service
+    container_name: game-catalog-service
+    depends_on:
+      - game-catalog-db
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://game-catalog-db:5432/game_catalog
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: postgres
+
+volumes:
+  game_catalog_data:

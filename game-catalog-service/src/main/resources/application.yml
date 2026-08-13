@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: game-catalog-service
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/game_catalog
+    username: postgres
+    password: postgres
+
+  sql:
+    init:
+      mode: always
+
+server:
+  port: 8081
+
+logging:
+  level:
+    root: INFO
+    com.boardgamelending: DEBUG
