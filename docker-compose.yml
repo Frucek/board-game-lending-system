@@ -31,5 +31,12 @@ services:
       SPRING_R2DBC_USERNAME: postgres
       SPRING_R2DBC_PASSWORD: postgres
 
+  borrowing-service:
+    build:
+      context: ./borrowing-service
+    container_name: borrowing-service
+    ports:
+      - "50051:50051"
+
 volumes:
   game_catalog_data:
