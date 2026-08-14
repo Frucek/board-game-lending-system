@@ -15,6 +15,8 @@ import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Duration;
+
 @SpringBootTest
 @ActiveProfiles("test")
 class GameRepositoryTest {
@@ -30,12 +32,11 @@ class GameRepositoryTest {
         databaseClient.sql("DELETE FROM games")
                 .fetch()
                 .rowsUpdated()
-                .block();
+                .block(Duration.ofSeconds(10));
     }
 
     @Test
     void shouldSaveAndFindGame() {
-
         Game game = new Game(
                 null,
                 "Catan",
@@ -47,16 +48,11 @@ class GameRepositoryTest {
                 true);
 
         StepVerifier.create(
-                gameRepository.save(game))
-                .assertNext(savedGame -> {
-
-                    assertEquals("Catan", savedGame.getName());
-                    assertEquals("Strategy", savedGame.getCategory());
-
-                    StepVerifier.create(
-                            gameRepository.findById(savedGame.getId()))
-                            .assertNext(foundGame -> assertEquals("Catan", foundGame.getName()))
-                            .verifyComplete();
+                gameRepository.save(game)
+                        .flatMap(savedGame -> gameRepository.findById(savedGame.getId())))
+                .assertNext(foundGame -> {
+                    assertEquals("Catan", foundGame.getName());
+                    assertEquals("Strategy", foundGame.getCategory());
                 })
                 .verifyComplete();
     }

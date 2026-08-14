@@ -10,6 +10,8 @@ spring:
   sql:
     init:
       mode: always
+      content:
+        schema-locations: classpath:schema.sql
 
 server:
   port: 8081
@@ -18,3 +20,6 @@ logging:
   level:
     root: INFO
     com.boardgamelending: DEBUG
+    io.r2dbc.postgresql: DEBUG
+    org.springframework.r2dbc: DEBUG
+    org.springframework.data.r2dbc: DEBUG

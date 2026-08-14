@@ -7,3 +7,10 @@ spring:
   sql:
     init:
       mode: always
+      schema-locations: classpath:schema.sql
+
+logging:
+    level:
+      io.r2dbc.postgresql: DEBUG
+      org.springframework.r2dbc: DEBUG
+      org.springframework.data.r2dbc: DEBUG
