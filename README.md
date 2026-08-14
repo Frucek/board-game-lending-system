@@ -118,3 +118,9 @@ flowchart TD
     ├── borrowing-service/
     ├── user-management-service/
     └── web-ui/
+
+
+### Zagon
+
+```bash
+docker compose up --build

@@ -31,7 +31,3 @@ Prva implementirana mikrostoritev je Game Catalog Service.
 | PUT | `/games/{id}` | Update game |
 | DELETE | `/games/{id}` | Delete game |
 
-### Zagon
-
-```bash
-docker compose up --build
