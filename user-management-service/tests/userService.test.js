@@ -10,18 +10,30 @@ const {
     deleteUser
 } = require("../src/userService");
 
-
 beforeAll(() => {
 
-    database.database.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
-            status TEXT NOT NULL,
-            borrowing_limit INTEGER NOT NULL
-        )
-    `);
+    return new Promise((resolve, reject) => {
+
+        database.database.run(
+            `
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                status TEXT NOT NULL,
+                borrowing_limit INTEGER NOT NULL
+            )
+            `,
+            error => {
+
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve();
+                }
+            }
+        );
+    });
 });
 
 
