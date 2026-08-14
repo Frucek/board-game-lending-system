@@ -17,7 +17,9 @@ const packageDefinition =
     });
 
 const proto =
-    grpc.loadPackageDefinition(packageDefinition);
+    grpc.loadPackageDefinition(
+        packageDefinition
+    );
 
 const borrowing =
     proto.borrowing;
@@ -31,6 +33,7 @@ const client =
         BORROWING_URL,
         grpc.credentials.createInsecure()
     );
+
 
 function borrowGame(userId, gameId) {
 
@@ -58,6 +61,7 @@ function borrowGame(userId, gameId) {
     });
 }
 
+
 function returnGame(borrowingId) {
 
     return new Promise((resolve, reject) => {
@@ -83,6 +87,7 @@ function returnGame(borrowingId) {
     });
 }
 
+
 function getBorrowingHistory(userId) {
 
     return new Promise((resolve, reject) => {
@@ -104,8 +109,36 @@ function getBorrowingHistory(userId) {
     });
 }
 
+
+function getBorrowing(borrowingId) {
+
+    return new Promise((resolve, reject) => {
+
+        console.log(
+            `BFF -> Borrowing: get id=${borrowingId}`
+        );
+
+        client.GetBorrowing(
+            {
+                borrowing_id: Number(borrowingId)
+            },
+            (error, response) => {
+
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                resolve(response);
+            }
+        );
+    });
+}
+
+
 module.exports = {
     borrowGame,
     returnGame,
-    getBorrowingHistory
+    getBorrowingHistory,
+    getBorrowing
 };

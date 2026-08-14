@@ -52,4 +52,16 @@ public class GameController {
             @PathVariable Long id) {
         return gameService.deleteGame(id);
     }
+
+    @PutMapping("/{id}/availability")
+    public Mono<GameResponse> updateAvailability(
+            @PathVariable Long id,
+            @Valid @RequestBody AvailabilityRequest request) {
+
+        return gameService
+                .updateAvailability(
+                        id,
+                        request.available())
+                .map(GameResponse::from);
+    }
 }

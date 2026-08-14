@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  rpc CanBorrow (CanBorrowRequest)
+      returns (CanBorrowResponse);
+}
+
+message CanBorrowRequest {
+  int64 user_id = 1;
+}
+
+message CanBorrowResponse {
+  bool allowed = 1;
+  string reason = 2;
+  int32 borrowing_limit = 3;
+  string status = 4;
+}
