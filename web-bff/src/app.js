@@ -21,6 +21,11 @@ app.get("/health", (req, res) => {
     });
 });
 
+app.use((req, res, next) => {
+    console.log("BFF REQUEST:", req.method, req.originalUrl);
+    next();
+});
+
 app.use(gameRoutes);
 app.use(userRoutes);
 app.use(borrowingRoutes);

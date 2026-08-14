@@ -135,7 +135,64 @@ router.post("/users", async (req, res) => {
     }
 });
 
+router.put("/users/:id/status",async (req, res) => {
 
+    console.log("🔥 STATUS ROUTE HIT");
+    console.log("ID:", req.params.id);
+    console.log("BODY:", req.body);
+
+    if (!isPositiveInteger(req.params.id)) {
+        return res.status(400).json({
+            error: "User id must be a positive integer"
+        });
+    }
+
+    const { status } = req.body;
+
+    if (
+        status !== "ACTIVE" &&
+        status !== "SUSPENDED"
+    ) {
+        return res.status(400).json({
+            error: "Status must be ACTIVE or SUSPENDED"
+        });
+    }
+
+    try {
+
+        const user = await updateUserStatus(
+            req.params.id,
+            status
+        );
+
+        console.log("✅ User service returned:", user);
+
+        res.status(200).json(user);
+
+    } catch (error) {
+
+        console.error(
+            "❌ User Management error:",
+            error.message
+        );
+
+        console.error(
+            "STATUS:",
+            error.response?.status
+        );
+
+        console.error(
+            "DATA:",
+            error.response?.data
+        );
+
+        res.status(502).json({
+            error: "User Management Service unavailable"
+        });
+    }
+});
+
+/*
 router.put(
     "/users/:id/status",
     async (req, res) => {
@@ -197,10 +254,9 @@ router.put(
         }
     }
 );
+*/
 
-
-router.delete(
-    "/users/:id",
+router.delete("/users/:id",
     async (req, res) => {
 
         if (!isPositiveInteger(req.params.id)) {
