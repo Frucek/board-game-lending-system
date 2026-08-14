@@ -1,0 +1,9 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/game_catalog
+    username: postgres
+    password: postgres
+
+  sql:
+    init:
+      mode: always

@@ -11,13 +11,19 @@ services:
       - "5432:5432"
     volumes:
       - game_catalog_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d game_catalog"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   game-catalog-service:
     build:
       context: ./game-catalog-service
     container_name: game-catalog-service
     depends_on:
-      - game-catalog-db
+      game-catalog-db:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
