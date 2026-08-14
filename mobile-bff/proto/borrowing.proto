@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package borrowing;
+
+service BorrowingService {
+  rpc BorrowGame (BorrowGameRequest) returns (BorrowingResponse);
+  rpc ReturnGame (ReturnGameRequest) returns (BorrowingResponse);
+
+  rpc GetBorrowingHistory (GetBorrowingHistoryRequest)
+      returns (BorrowingHistoryResponse);
+
+  rpc GetBorrowing (GetBorrowingRequest)
+      returns (BorrowingResponse);
+}
+
+message BorrowGameRequest {
+  int64 user_id = 1;
+  int64 game_id = 2;
+}
+
+message ReturnGameRequest {
+  int64 borrowing_id = 1;
+}
+
+message GetBorrowingHistoryRequest {
+  int64 user_id = 1;
+}
+
+message GetBorrowingRequest {
+  int64 borrowing_id = 1;
+}
+
+enum BorrowingStatus {
+  BORROWING_STATUS_UNSPECIFIED = 0;
+  BORROWING_STATUS_BORROWED = 1;
+  BORROWING_STATUS_RETURNED = 2;
+}
+
+message BorrowingResponse {
+  int64 id = 1;
+  int64 user_id = 2;
+  int64 game_id = 3;
+  string borrowed_at = 4;
+  string returned_at = 5;
+  BorrowingStatus status = 6;
+}
+
+message BorrowingHistoryResponse {
+  repeated BorrowingResponse borrowings = 1;
+}

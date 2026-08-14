@@ -1,0 +1,28 @@
+name: Web BFF Tests
+
+on:
+  push:
+
+jobs:
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: web-bff
+        run: npm ci
+
+      - name: Run tests
+        working-directory: web-bff
+        run: npm test

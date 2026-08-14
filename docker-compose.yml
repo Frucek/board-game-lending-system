@@ -72,5 +72,45 @@ services:
       ACTIVEMQ_HOST: activemq
       ACTIVEMQ_PORT: 61613
 
+  web-bff:
+    build:
+      context: ./web-bff
+
+    container_name: web-bff
+
+    depends_on:
+      - game-catalog-service
+      - borrowing-service
+      - user-management-service
+
+    ports:
+      - "4000:4000"
+
+    environment:
+      PORT: 4000
+      GAME_CATALOG_URL: http://game-catalog-service:8081
+      USER_SERVICE_URL: http://user-management-service:3000
+      BORROWING_URL: borrowing-service:50051
+
+
+  mobile-bff:
+    build:
+      context: ./mobile-bff
+
+    container_name: mobile-bff
+
+    depends_on:
+      - game-catalog-service
+      - borrowing-service
+      - user-management-service
+
+    ports:
+      - "4001:4001"
+
+    environment:
+      GAME_CATALOG_URL: http://game-catalog-service:8081
+      USER_SERVICE_URL: http://user-management-service:3000
+      BORROWING_URL: borrowing-service:50051
+
 volumes:
   game_catalog_data:

@@ -35,6 +35,85 @@ Skrbi za uporabnike, njihov status in omejitve izposoje.
 
 Spletna aplikacija, prek katere uporabnik dostopa do sistema.
 
+## API Gateway / BFF
+
+Sistem uporablja vzorec »Backend for Frontend« (BFF).
+
+Implementirana sta dva ločena vmesnika BFF:
+
+### web-BFF
+
+Tehnologija: Node.js + Express
+
+Vrata (port): 4000
+
+Spletni BFF zagotavlja končne točke (endpoints), optimizirane za spletni odjemalec.
+
+Primeri:
+
+- GET /games
+- GET /games/{id}
+- GET /users
+- GET /users/{id}
+- POST /users
+- POST /borrowings
+- PUT /borrowings/{id}/return
+- GET /users/{id}/borrowings
+
+### mobile-BFF
+
+Tehnologija: Python + FastAPI
+
+Vrata (port): 4001
+
+Mobilni BFF zagotavlja manjši API, optimiziran za mobilne odjemalce.
+
+Primeri:
+
+- GET /mobile/games
+- GET /mobile/games/{id}
+- GET /mobile/users/{id}
+- GET /mobile/users/{id}/borrowings
+
+Vmesnika BFF zagotavljata enotno vstopno točko za ustrezne odjemalce in skrivata notranjo arhitekturo mikrostoritev.
+
+
+                         ┌─────────────────┐
+                         │   Web Client    │
+                         └────────┬────────┘
+                                  │
+                                  ▼
+                         ┌─────────────────┐
+                         │     Web BFF     │
+                         │ Node.js/Express │
+                         │      :4000      │
+                         └────────┬────────┘
+                                  │
+          ┌───────────────────────┼───────────────────────┐
+          │                       │                       │
+          ▼                       ▼                       ▼
+    Game Catalog          User Management            Borrowing
+       :8081                    :3000                  :50051
+       REST                     REST                    gRPC
+
+
+                         ┌─────────────────┐
+                         │  Mobile Client  │
+                         └────────┬────────┘
+                                  │
+                                  ▼
+                         ┌─────────────────┐
+                         │   Mobile BFF    │
+                         │ Python/FastAPI  │
+                         │      :4001      │
+                         └────────┬────────┘
+                                  │
+          ┌───────────────────────┼───────────────────────┐
+          │                       │                       │
+          ▼                       ▼                       ▼
+    Game Catalog          User Management            Borrowing
+       :8081                    :3000                  :50051
+       REST                     REST                    gRPC
 
 ## Lastništvo podatkov
 

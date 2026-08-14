@@ -1,15 +1,12 @@
 {
   "name": "web-bff",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Web Backend for Frontend for Board Game Lending System",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "test": "jest --runInBand"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "@grpc/grpc-js": "^1.14.4",
     "@grpc/proto-loader": "^0.8.1",
@@ -17,6 +14,7 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
-    "jest": "^30.4.2"
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2"
   }
 }
