@@ -38,5 +38,39 @@ services:
     ports:
       - "50051:50051"
 
+  activemq:
+    build:
+      context: ./activemq
+    container_name: activemq
+
+    ports:
+      - "61613:61613"
+      - "61616:61616"
+      - "8161:8161"
+
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "61613"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+
+  user-management-service:
+    build:
+      context: ./user-management-service
+    container_name: user-management-service
+
+    depends_on:
+      activemq:
+        condition: service_healthy
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      ACTIVEMQ_HOST: activemq
+      ACTIVEMQ_PORT: 61613
+
 volumes:
   game_catalog_data:

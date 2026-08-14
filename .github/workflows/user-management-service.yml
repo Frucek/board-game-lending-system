@@ -1,0 +1,26 @@
+name: User Management Service
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: user-management-service
+        run: npm ci
+
+      - name: Run tests
+        working-directory: user-management-service
+        run: npm test

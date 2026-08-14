@@ -1,0 +1,21 @@
+{
+  "name": "user-management-service",
+  "version": "1.0.0",
+  "description": "User Management microservice for Board Game Lending System",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "@stomp/stompjs": "^7.3.0",
+    "express": "^5.2.1",
+    "rxjs": "^7.8.2",
+    "sqlite3": "^6.0.1",
+    "stompit": "^1.0.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2"
+  }
+}

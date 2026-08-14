@@ -120,6 +120,9 @@ flowchart TD
     └── web-ui/
 
 
+
+docker compose build --no-cache activemq
+
 ### Zagon
 
 ```bash
