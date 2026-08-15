@@ -65,17 +65,15 @@ function markPublished(
     id,
     callback
 ) {
-    return new Promise((resolve, reject) => {
-        database.run(
-            `
-            UPDATE outbox
-            SET published = 1
-            WHERE id = ?
-            `,
-            [id],
-            callback
-        );
-    });
+    database.run(
+        `
+        UPDATE outbox
+        SET published = 1
+        WHERE id = ?
+        `,
+        [id],
+        callback
+    );
 }
 
 

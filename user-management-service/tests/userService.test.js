@@ -1,5 +1,3 @@
-const fs = require("fs");
-
 const database = require("../src/database");
 
 const {
@@ -10,29 +8,14 @@ const {
     deleteUser
 } = require("../src/userService");
 
+
 beforeAll(() => {
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
 
-        database.database.run(
-            `
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL UNIQUE,
-                status TEXT NOT NULL,
-                borrowing_limit INTEGER NOT NULL
-            )
-            `,
-            error => {
+        database.initializeDatabase();
 
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve();
-                }
-            }
-        );
+        setTimeout(resolve, 100);
     });
 });
 
@@ -41,146 +24,263 @@ beforeEach(() => {
 
     return new Promise((resolve, reject) => {
 
-        database.database.run(
-            "DELETE FROM users",
-            error => {
+        database.database.serialize(() => {
 
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve();
+            database.database.run(
+                "DELETE FROM outbox",
+                error => {
+
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+
+                    database.database.run(
+                        "DELETE FROM users",
+                        error => {
+
+                            if (error) {
+                                reject(error);
+                                return;
+                            }
+
+                            resolve();
+                        }
+                    );
                 }
-            }
-        );
+            );
+        });
     });
 });
 
 
 afterAll(() => {
 
-    database.database.close();
+    return new Promise((resolve) => {
+
+        database.database.close(() => {
+            resolve();
+        });
+    });
 });
 
 
 function observableToPromise(observable) {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(
+        (resolve, reject) => {
 
-        let result;
+            let result;
 
-        observable.subscribe({
 
-            next: value => {
-                result = value;
-            },
+            observable.subscribe({
 
-            error: error => {
-                reject(error);
-            },
+                next: value => {
+                    result = value;
+                },
 
-            complete: () => {
-                resolve(result);
-            }
-        });
-    });
+                error: error => {
+                    reject(error);
+                },
+
+                complete: () => {
+                    resolve(result);
+                }
+            });
+        }
+    );
 }
 
 
-test("creates a user", async () => {
-
-    const user = await observableToPromise(
-        createUser(
-            "John Smith",
-            "john@test.com"
-        )
-    );
-
-    expect(user.name).toBe("John Smith");
-    expect(user.email).toBe("john@test.com");
-    expect(user.status).toBe("ACTIVE");
-    expect(user.borrowingLimit).toBe(3);
-});
+describe("User Service", () => {
 
 
-test("gets a user", async () => {
+    test("creates a user", async () => {
 
-    const created = await observableToPromise(
-        createUser(
-            "John Smith",
-            "john2@test.com"
-        )
-    );
-
-    const user = await observableToPromise(
-        getUser(created.id)
-    );
-
-    expect(user.id).toBe(created.id);
-});
+        const user =
+            await observableToPromise(
+                createUser(
+                    "John Smith",
+                    "john@test.com"
+                )
+            );
 
 
-test("gets all users", async () => {
+        expect(user.name)
+            .toBe("John Smith");
 
-    await observableToPromise(
-        createUser(
-            "John",
-            "john3@test.com"
-        )
-    );
+        expect(user.email)
+            .toBe("john@test.com");
 
-    await observableToPromise(
-        createUser(
-            "Jane",
-            "jane3@test.com"
-        )
-    );
+        expect(user.status)
+            .toBe("ACTIVE");
 
-    const users = await observableToPromise(
-        getUsers()
-    );
-
-    expect(users.length).toBe(2);
-});
+        expect(user.borrowingLimit)
+            .toBe(3);
+    });
 
 
-test("updates user status", async () => {
+    test("gets a user", async () => {
 
-    const created = await observableToPromise(
-        createUser(
-            "John",
-            "john4@test.com"
-        )
-    );
-
-    const updated = await observableToPromise(
-        updateUserStatus(
-            created.id,
-            "SUSPENDED"
-        )
-    );
-
-    expect(updated.status).toBe("SUSPENDED");
-});
+        const created =
+            await observableToPromise(
+                createUser(
+                    "John Smith",
+                    "john2@test.com"
+                )
+            );
 
 
-test("deletes a user", async () => {
+        const user =
+            await observableToPromise(
+                getUser(created.id)
+            );
 
-    const created = await observableToPromise(
-        createUser(
-            "John",
-            "john5@test.com"
-        )
-    );
 
-    const deleted = await observableToPromise(
-        deleteUser(created.id)
-    );
+        expect(user)
+            .not
+            .toBeNull();
 
-    expect(deleted).toBe(true);
+        expect(user.id)
+            .toBe(created.id);
 
-    const user = await observableToPromise(
-        getUser(created.id)
-    );
+        expect(user.name)
+            .toBe("John Smith");
+    });
 
-    expect(user).toBeNull();
+
+    test("returns null when user does not exist", async () => {
+
+        const user =
+            await observableToPromise(
+                getUser(999999)
+            );
+
+
+        expect(user)
+            .toBeNull();
+    });
+
+
+    test("gets all users", async () => {
+
+        await observableToPromise(
+            createUser(
+                "John",
+                "john3@test.com"
+            )
+        );
+
+
+        await observableToPromise(
+            createUser(
+                "Jane",
+                "jane3@test.com"
+            )
+        );
+
+
+        const users =
+            await observableToPromise(
+                getUsers()
+            );
+
+
+        expect(users.length)
+            .toBe(2);
+
+
+        expect(
+            users.some(
+                user =>
+                    user.name === "John"
+            )
+        ).toBe(true);
+
+
+        expect(
+            users.some(
+                user =>
+                    user.name === "Jane"
+            )
+        ).toBe(true);
+    });
+
+
+    test("updates user status", async () => {
+
+        const created =
+            await observableToPromise(
+                createUser(
+                    "John",
+                    "john4@test.com"
+                )
+            );
+
+
+        const updated =
+            await observableToPromise(
+                updateUserStatus(
+                    created.id,
+                    "SUSPENDED"
+                )
+            );
+
+
+        expect(updated)
+            .not
+            .toBeNull();
+
+        expect(updated.id)
+            .toBe(created.id);
+
+        expect(updated.status)
+            .toBe("SUSPENDED");
+    });
+
+
+    test("deletes a user", async () => {
+
+        const created =
+            await observableToPromise(
+                createUser(
+                    "John",
+                    "john5@test.com"
+                )
+            );
+
+
+        const deleted =
+            await observableToPromise(
+                deleteUser(created.id)
+            );
+
+
+        expect(deleted)
+            .toBe(true);
+
+
+        const user =
+            await observableToPromise(
+                getUser(created.id)
+            );
+
+
+        expect(user)
+            .toBeNull();
+    });
+
+
+    test("delete returns false for nonexistent user", async () => {
+
+        const deleted =
+            await observableToPromise(
+                deleteUser(999999)
+            );
+
+
+        expect(deleted)
+            .toBe(false);
+    });
+
 });
