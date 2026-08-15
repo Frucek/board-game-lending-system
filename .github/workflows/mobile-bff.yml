@@ -30,27 +30,27 @@ jobs:
         working-directory: mobile-bff
         run: pytest
 
-    docker:
-      needs: test
-      runs-on: ubuntu-latest
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
 
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
 
-        - name: Log in to Docker Hub
-          uses: docker/login-action@v3
-          with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        - name: Build and push image
-          uses: docker/build-push-action@v6
-          with:
-            context: ./mobile-bff
-            push: true
-            tags: |
-              ${{ secrets.DOCKERHUB_USERNAME }}/board-game-mobile-bff:latest
-              ${{ secrets.DOCKERHUB_USERNAME }}/board-game-mobile-bff:${{ github.sha }}
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./mobile-bff
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-mobile-bff:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-mobile-bff:${{ github.sha }}
