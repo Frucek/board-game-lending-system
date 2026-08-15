@@ -7,16 +7,18 @@ const deps = require("./package.json").dependencies;
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
 
 
-const remote = (name, port) =>
+const remote = (name, url) =>
     `promise new Promise((resolve, reject) => {
         const script = document.createElement("script");
-        script.src = window.location.protocol + "//" + window.location.hostname + ":${port}/remoteEntry.js";
+        script.src = "${url}/remoteEntry.js";
         script.onload = () => {
             const container = window["${name}"];
             const proxy = {
                 get: request => container.get(request),
                 init: arg => {
-                    try { return container.init(arg); } catch (e) {}
+                    try {
+                        return container.init(arg);
+                    } catch (e) {}
                 }
             };
             resolve(proxy);
@@ -24,6 +26,16 @@ const remote = (name, port) =>
         script.onerror = reject;
         document.head.appendChild(script);
     })`;
+
+const CATALOG_URL =
+    process.env.CATALOG_URL || "http://localhost:3001";
+
+const BORROWING_URL =
+    process.env.BORROWING_URL || "http://localhost:3002";
+
+const USERS_URL =
+    process.env.USERS_URL || "http://localhost:3003";
+
 
 module.exports = {
     mode: "development",
@@ -78,9 +90,9 @@ module.exports = {
         new ModuleFederationPlugin({
             name: "shell",
             remotes: {
-                catalog: remote("catalog", 3001),
-                borrowing: remote("borrowing", 3002),
-                users: remote("users", 3003)
+                catalog: remote("catalog", CATALOG_URL),
+                borrowing: remote("borrowing", BORROWING_URL),
+                users: remote("users", USERS_URL)
             },
             shared: {
                 react: {
