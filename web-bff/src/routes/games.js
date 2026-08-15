@@ -34,9 +34,24 @@ router.get("/games", async (req, res) => {
             error.message
         );
 
+        if (
+            error &&
+            error.code === "EOPENBREAKER"
+        ) {
+
+            return res.status(503).json({
+                error:
+                    "Game Catalog temporarily unavailable",
+                circuitBreaker:
+                    "OPEN"
+            });
+        }
+
         res.status(502).json({
             error: "Game Catalog Service unavailable"
         });
+
+
     }
 });
 

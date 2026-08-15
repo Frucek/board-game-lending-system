@@ -91,6 +91,9 @@ services:
       GAME_CATALOG_URL: http://game-catalog-service:8081
       USER_SERVICE_URL: http://user-management-service:3000
       BORROWING_URL: borrowing-service:50051
+      CIRCUIT_BREAKER_TIMEOUT: 3000
+      CIRCUIT_BREAKER_RESET_TIMEOUT: 10000
+      CIRCUIT_BREAKER_ERROR_THRESHOLD: 50
 
 
   mobile-bff:
