@@ -132,7 +132,7 @@ describe("User Management API", () => {
         expect(response.body.status)
             .toBe("ACTIVE");
 
-        expect(response.body.borrowingLimit)
+        expect(response.body.borrowing_limit)
             .toBe(3);
 
 
