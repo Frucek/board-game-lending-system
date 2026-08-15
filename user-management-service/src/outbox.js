@@ -50,7 +50,8 @@ function getPendingEvents(callback) {
             id,
             event_type,
             payload,
-            created_at
+            created_at,
+            published
         FROM outbox
         WHERE published = 0
         ORDER BY id ASC
