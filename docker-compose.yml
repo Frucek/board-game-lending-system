@@ -119,17 +119,17 @@ services:
     ports:
       - "3001:80"
 
-  user-management-mf:
-    build:
-      context: ./frontend/user-management-mf
-    container_name: user-management-mf
-    ports:
-      - "3002:80"
-
   borrowing-mf:
     build:
       context: ./frontend/borrowing-mf
     container_name: borrowing-mf
+    ports:
+      - "3002:80"
+
+  user-management-mf:
+    build:
+      context: ./frontend/user-management-mf
+    container_name: user-management-mf
     ports:
       - "3003:80"
 
@@ -141,6 +141,7 @@ services:
       - catalog-mf
       - user-management-mf
       - borrowing-mf
+      - web-bff
     ports:
       - "3004:80"
 
