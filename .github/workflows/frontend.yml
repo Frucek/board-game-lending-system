@@ -28,7 +28,24 @@ jobs:
         working-directory: frontend/shell
         run: npm run build
 
-  catalog-mf:
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend/shell
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-shell:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-shell:${{ github.sha }}
+
+  game-catalog:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,14 +58,31 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        working-directory: frontend/catalog-mf
+        working-directory: frontend/game-catalog
         run: npm ci
 
       - name: Build
-        working-directory: frontend/catalog-mf
+        working-directory: frontend/game-catalog
         run: npm run build
 
-  user-management-mf:
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend/game-catalog
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-game-catalog-mf:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-game-catalog-mf:${{ github.sha }}
+
+  users:
     runs-on: ubuntu-latest
 
     steps:
@@ -61,14 +95,31 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        working-directory: frontend/user-management-mf
+        working-directory: frontend/users
         run: npm ci
 
       - name: Build
-        working-directory: frontend/user-management-mf
+        working-directory: frontend/users
         run: npm run build
 
-  borrowing-mf:
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend/users
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-users-mf:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-users-mf:${{ github.sha }}
+
+  borrowing:
     runs-on: ubuntu-latest
 
     steps:
@@ -81,9 +132,26 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        working-directory: frontend/borrowing-mf
+        working-directory: frontend/borrowing
         run: npm ci
 
       - name: Build
-        working-directory: frontend/borrowing-mf
+        working-directory: frontend/borrowing
         run: npm run build
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend/borrowing
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-borrowing-mf:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-borrowing-mf:${{ github.sha }}
