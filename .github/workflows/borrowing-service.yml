@@ -2,6 +2,9 @@ name: Borrowing Service
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   test:
@@ -26,3 +29,28 @@ jobs:
         working-directory: borrowing-service
         run: |
           python -m unittest discover -s tests -v
+          
+  docker:
+      needs: test
+      runs-on: ubuntu-latest
+
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+
+        - name: Log in to Docker Hub
+          uses: docker/login-action@v3
+          with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+        - name: Build and push image
+          uses: docker/build-push-action@v6
+          with:
+            context: ./borrowing-service
+            push: true
+            tags: |
+              ${{ secrets.DOCKERHUB_USERNAME }}/board-game-borrowing-service:latest
+              ${{ secrets.DOCKERHUB_USERNAME }}/board-game-borrowing-service:${{ github.sha }}

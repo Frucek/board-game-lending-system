@@ -2,6 +2,10 @@ name: Game Catalog Service
 
 on:
   push:
+    branches:
+        - main
+    pull_request:
+
 
 jobs:
   test:
@@ -43,3 +47,28 @@ jobs:
           SPRING_R2DBC_URL: r2dbc:postgresql://localhost:5432/game_catalog
           SPRING_R2DBC_USERNAME: postgres
           SPRING_R2DBC_PASSWORD: postgres
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./game-catalog-service
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-catalog-service:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-catalog-service:${{ github.sha }}

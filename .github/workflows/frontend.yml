@@ -1,0 +1,89 @@
+name: Micro Frontends
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+
+  shell:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: frontend/shell
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend/shell
+        run: npm run build
+
+  catalog-mf:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: frontend/catalog-mf
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend/catalog-mf
+        run: npm run build
+
+  user-management-mf:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: frontend/user-management-mf
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend/user-management-mf
+        run: npm run build
+
+  borrowing-mf:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: frontend/borrowing-mf
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend/borrowing-mf
+        run: npm run build

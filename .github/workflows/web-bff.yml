@@ -2,6 +2,9 @@ name: Web BFF Tests
 
 on:
   push:
+    branches:
+        - main
+    pull_request:
 
 jobs:
 
@@ -26,3 +29,27 @@ jobs:
       - name: Run tests
         working-directory: web-bff
         run: npm test
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web-bff
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-web-bff:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/board-game-web-bff:${{ github.sha }}

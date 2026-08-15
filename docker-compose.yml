@@ -112,5 +112,37 @@ services:
       USER_SERVICE_URL: http://user-management-service:3000
       BORROWING_URL: borrowing-service:50051
 
+  catalog-mf:
+    build:
+      context: ./frontend/catalog-mf
+    container_name: catalog-mf
+    ports:
+      - "3001:80"
+
+  user-management-mf:
+    build:
+      context: ./frontend/user-management-mf
+    container_name: user-management-mf
+    ports:
+      - "3002:80"
+
+  borrowing-mf:
+    build:
+      context: ./frontend/borrowing-mf
+    container_name: borrowing-mf
+    ports:
+      - "3003:80"
+
+  shell:
+    build:
+      context: ./frontend/shell
+    container_name: board-game-shell
+    depends_on:
+      - catalog-mf
+      - user-management-mf
+      - borrowing-mf
+    ports:
+      - "3004:80"
+
 volumes:
   game_catalog_data:
