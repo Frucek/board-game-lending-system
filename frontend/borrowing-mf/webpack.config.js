@@ -29,6 +29,7 @@ module.exports = {
         ]
     },
 
+    
     output: {
         publicPath: "auto",
         clean: true
