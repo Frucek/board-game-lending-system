@@ -71,6 +71,7 @@ services:
     environment:
       ACTIVEMQ_HOST: activemq
       ACTIVEMQ_PORT: 61613
+      OUTBOX_POLLING_INTERVAL: 1000
 
   web-bff:
     build:

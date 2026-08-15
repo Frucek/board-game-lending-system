@@ -3,15 +3,48 @@ const sqlite3 = require("sqlite3").verbose();
 const database = new sqlite3.Database("users.db");
 
 function initializeDatabase() {
-    database.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
-            status TEXT NOT NULL,
-            borrowing_limit INTEGER NOT NULL
-        )
-    `);
+    database.serialize(() => {
+
+        /*
+         * ==========================================
+         * USERS
+         * ==========================================
+         */
+
+        database.run(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                status TEXT NOT NULL,
+                borrowing_limit INTEGER NOT NULL
+            )
+        `);
+
+        /*
+         * ==========================================
+         * TRANSACTIONAL OUTBOX
+         * ==========================================
+         */
+
+        database.run(`
+            CREATE TABLE IF NOT EXISTS outbox (
+
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                event_type TEXT NOT NULL,
+
+                payload TEXT NOT NULL,
+
+                created_at TEXT NOT NULL,
+
+                published INTEGER NOT NULL DEFAULT 0
+            )
+        `);
+
+
+
+    });
 }
 
 module.exports = {

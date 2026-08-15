@@ -1,92 +1,171 @@
-const stompit = require("stompit");
+const stompit =
+    require("stompit");
+
 
 let connected = false;
+
 let client = null;
 
+
 function connectBroker() {
-    const host = process.env.ACTIVEMQ_HOST || "localhost";
-    const port = Number(process.env.ACTIVEMQ_PORT || 61613);
+
+    const host =
+        process.env.ACTIVEMQ_HOST ||
+        "localhost";
+
+    const port =
+        Number(
+            process.env.ACTIVEMQ_PORT ||
+            61613
+        );
+
 
     stompit.connect(
         {
-            host: host,
-            port: port
+            host,
+            port
         },
+
         (error, connection) => {
 
             if (error) {
+
                 console.error(
                     "ActiveMQ connection error:",
                     error.message
                 );
 
                 connected = false;
+
                 return;
             }
 
-            client = connection;
-            connected = true;
+
+            client =
+                connection;
+
+            connected =
+                true;
+
 
             console.log(
                 "Connected to ActiveMQ"
             );
 
-            connection.on("error", (error) => {
 
-                console.error(
-                    "ActiveMQ error:",
-                    error.message
-                );
+            connection.on(
+                "error",
+                (error) => {
 
-                connected = false;
-            });
+                    console.error(
+                        "ActiveMQ error:",
+                        error.message
+                    );
 
-            connection.on("close", () => {
+                    connected = false;
+                }
+            );
 
-                console.log(
-                    "ActiveMQ connection closed"
-                );
 
-                connected = false;
-            });
+            connection.on(
+                "close",
+                () => {
+
+                    console.log(
+                        "ActiveMQ connection closed"
+                    );
+
+                    connected = false;
+
+                    client = null;
+                }
+            );
         }
     );
 }
 
 
-function publishEvent(eventType, data) {
+/*
+ * ==========================================
+ * PUBLISH EVENT
+ * ==========================================
+ */
 
-    if (!connected || !client) {
+function publishEvent(
+    event
+) {
 
-        console.warn(
-            `ActiveMQ is not connected. Event not published: ${eventType}`
-        );
+    return new Promise(
+        (resolve, reject) => {
 
-        return;
-    }
+            if (
+                !connected ||
+                !client
+            ) {
 
-    const message = JSON.stringify({
-        type: eventType,
-        timestamp: new Date().toISOString(),
-        data: data
-    });
+                reject(
+                    new Error(
+                        "ActiveMQ is not connected"
+                    )
+                );
 
-    const frame = client.send({
-        destination: "/topic/user-events",
-        "content-type": "application/json"
-    });
+                return;
+            }
 
-    frame.write(message);
 
-    frame.end();
+            const message =
+                JSON.stringify({
 
-    console.log(
-        `Published event: ${eventType}`
+                    id: event.id,
+
+                    type:
+                        event.event_type,
+
+                    timestamp:
+                        event.created_at,
+
+                    data:
+                        JSON.parse(event.payload)
+                });
+
+
+            try {
+
+                const frame =
+                    client.send({
+
+                        destination:
+                            "/topic/user-events",
+
+                        "content-type":
+                            "application/json"
+                    });
+
+
+                frame.write(message);
+
+                frame.end();
+
+
+                console.log(
+                    `Published outbox event ${event.id}: ${event.event_type}`
+                );
+
+
+                resolve();
+
+            } catch (error) {
+
+                reject(error);
+            }
+        }
     );
 }
 
 
 module.exports = {
+
     connectBroker,
+
     publishEvent
 };

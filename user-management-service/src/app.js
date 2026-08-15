@@ -9,8 +9,12 @@ const {
 } = require("./userService");
 
 const {
-    publishEvent
-} = require("./messageBroker");
+    database
+} = require("./database");
+
+const {
+    addEvent
+} = require("./outbox");
 
 const app = express();
 
@@ -87,26 +91,133 @@ app.post("/users", (req, res) => {
         return;
     }
 
-    createUser(name, email).subscribe({
+    database.serialize(() => {
 
-        next: user => {
+        database.run(
+            "BEGIN TRANSACTION"
+        );
 
-            publishEvent(
-                "UserCreated",
-                user
-            );
 
-            res.status(201).json(user);
-        },
+        database.run(
+            `
+            INSERT INTO users
+            (
+                name,
+                email,
+                status,
+                borrowing_limit
+            )
+            VALUES (?, ?, ?, ?)
+            `,
+            [
+                name,
+                email,
+                "ACTIVE",
+                3
+            ],
+            function(error) {
 
-        error: error => {
+                if (error) {
 
-            console.error(error);
+                    database.run(
+                        "ROLLBACK"
+                    );
 
-            res.status(400).json({
-                error: "Could not create user"
-            });
-        }
+                    console.error(error);
+
+                    res.status(400).json({
+                        error:
+                            "Could not create user"
+                    });
+
+                    return;
+                }
+
+
+                const userId =
+                    this.lastID;
+
+
+                database.get(
+                    `
+                    SELECT *
+                    FROM users
+                    WHERE id = ?
+                    `,
+                    [userId],
+                    (selectError, user) => {
+
+                        if (selectError) {
+
+                            database.run(
+                                "ROLLBACK"
+                            );
+
+                            res.status(500).json({
+                                error:
+                                    "Could not create user"
+                            });
+
+                            return;
+                        }
+
+
+                        addEvent(
+                            "UserCreated",
+                            user,
+                            (outboxError) => {
+
+                                if (outboxError) {
+
+                                    database.run(
+                                        "ROLLBACK"
+                                    );
+
+                                    console.error(
+                                        outboxError
+                                    );
+
+                                    res.status(500).json({
+                                        error:
+                                            "Could not create user"
+                                    });
+
+                                    return;
+                                }
+
+
+                                database.run(
+                                    "COMMIT",
+                                    (commitError) => {
+
+                                        if (
+                                            commitError
+                                        ) {
+
+                                            console.error(
+                                                commitError
+                                            );
+
+                                            res.status(500).json({
+                                                error:
+                                                    "Could not create user"
+                                            });
+
+                                            return;
+                                        }
+
+
+                                        res.status(
+                                            201
+                                        ).json(user);
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
     });
 });
 
@@ -134,38 +245,128 @@ app.put("/users/:id/status", (req, res) => {
         return;
     }
 
-    updateUserStatus(
-        req.params.id,
-        status
-    ).subscribe({
+    database.serialize(() => {
 
-        next: user => {
+        database.run(
+            "BEGIN TRANSACTION"
+        );
 
-            if (!user) {
 
-                res.status(404).json({
-                    error: "User not found"
-                });
+        database.run(
+            `
+            UPDATE users
+            SET status = ?
+            WHERE id = ?
+            `,
+            [
+                status,
+                req.params.id
+            ],
+            function(error) {
 
-                return;
+                if (error) {
+
+                    database.run(
+                        "ROLLBACK"
+                    );
+
+                    res.status(500).json({
+                        error:
+                            "Could not update user"
+                    });
+
+                    return;
+                }
+
+
+                if (this.changes === 0) {
+
+                    database.run(
+                        "ROLLBACK"
+                    );
+
+                    res.status(404).json({
+                        error:
+                            "User not found"
+                    });
+
+                    return;
+                }
+
+
+                database.get(
+                    `
+                    SELECT *
+                    FROM users
+                    WHERE id = ?
+                    `,
+                    [
+                        req.params.id
+                    ],
+                    (selectError, user) => {
+
+                        if (selectError) {
+
+                            database.run(
+                                "ROLLBACK"
+                            );
+
+                            res.status(500).json({
+                                error:
+                                    "Could not update user"
+                            });
+
+                            return;
+                        }
+
+
+                        addEvent(
+                            "UserStatusChanged",
+                            user,
+                            (outboxError) => {
+
+                                if (outboxError) {
+
+                                    database.run(
+                                        "ROLLBACK"
+                                    );
+
+                                    res.status(500).json({
+                                        error:
+                                            "Could not update user"
+                                    });
+
+                                    return;
+                                }
+
+
+                                database.run(
+                                    "COMMIT",
+                                    (commitError) => {
+
+                                        if (
+                                            commitError
+                                        ) {
+
+                                            res.status(500).json({
+                                                error:
+                                                    "Could not update user"
+                                            });
+
+                                            return;
+                                        }
+
+
+                                        res.json(user);
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
             }
+        );
 
-            publishEvent(
-                "UserStatusChanged",
-                user
-            );
-
-            res.json(user);
-        },
-
-        error: error => {
-
-            console.error(error);
-
-            res.status(500).json({
-                error: "Could not update user"
-            });
-        }
     });
 });
 
@@ -175,37 +376,103 @@ app.put("/users/:id/status", (req, res) => {
  */
 app.delete("/users/:id", (req, res) => {
 
-    deleteUser(req.params.id).subscribe({
+    database.serialize(() => {
 
-        next: deleted => {
+        database.run(
+            "BEGIN TRANSACTION"
+        );
 
-            if (!deleted) {
 
-                res.status(404).json({
-                    error: "User not found"
-                });
+        database.run(
+            `
+            DELETE FROM users
+            WHERE id = ?
+            `,
+            [
+                req.params.id
+            ],
+            function(error) {
 
-                return;
-            }
+                if (error) {
 
-            publishEvent(
-                "UserDeleted",
-                {
-                    id: Number(req.params.id)
+                    database.run(
+                        "ROLLBACK"
+                    );
+
+                    res.status(500).json({
+                        error:
+                            "Could not delete user"
+                    });
+
+                    return;
                 }
-            );
 
-            res.status(204).send();
-        },
 
-        error: error => {
+                if (this.changes === 0) {
 
-            console.error(error);
+                    database.run(
+                        "ROLLBACK"
+                    );
 
-            res.status(500).json({
-                error: "Could not delete user"
-            });
-        }
+                    res.status(404).json({
+                        error:
+                            "User not found"
+                    });
+
+                    return;
+                }
+
+
+                addEvent(
+                    "UserDeleted",
+                    {
+                        id:
+                            Number(req.params.id)
+                    },
+                    (outboxError) => {
+
+                        if (outboxError) {
+
+                            database.run(
+                                "ROLLBACK"
+                            );
+
+                            res.status(500).json({
+                                error:
+                                    "Could not delete user"
+                            });
+
+                            return;
+                        }
+
+
+                        database.run(
+                            "COMMIT",
+                            (commitError) => {
+
+                                if (
+                                    commitError
+                                ) {
+
+                                    res.status(500).json({
+                                        error:
+                                            "Could not delete user"
+                                    });
+
+                                    return;
+                                }
+
+
+                                res.status(
+                                    204
+                                ).send();
+                            }
+                        );
+                    }
+                );
+            }
+        );
+
     });
 });
 

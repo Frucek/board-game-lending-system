@@ -11,6 +11,10 @@ const {
     connectBroker
 } = require("./messageBroker");
 
+const {
+    startOutboxPublisher
+} = require("./outboxPublisher");
+
 const openapi = require("../docs/openapi.json");
 
 const PORT = 3000;
@@ -24,6 +28,8 @@ app.use(
 );
 
 connectBroker();
+
+startOutboxPublisher();
 
 app.listen(PORT, () => {
 
