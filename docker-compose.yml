@@ -151,6 +151,3 @@ services:
 
 volumes:
   game_catalog_data:
-networks:
-  default:
-    name: board-game-lending-network
