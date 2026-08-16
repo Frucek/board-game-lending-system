@@ -1,6 +1,10 @@
 const database = require("../src/database");
 
 const {
+    initializeDatabase
+} = database;
+
+const {
     addEvent,
     getPendingEvents,
     markPublished

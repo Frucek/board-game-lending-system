@@ -1,13 +1,16 @@
 const database = require("../src/database");
 
 const {
+    initializeDatabase
+} = database;
+
+const {
     getUsers,
     getUser,
     createUser,
     updateUserStatus,
     deleteUser
 } = require("../src/userService");
-
 
 beforeAll(async () => {
     await initializeDatabase();
