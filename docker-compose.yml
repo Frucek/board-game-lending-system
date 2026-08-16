@@ -121,21 +121,21 @@ services:
       context: ./frontend/catalog-mf
     container_name: catalog-mf
     ports:
-      - "3001:80"
+      - "3001:8080"
 
   borrowing-mf:
     build:
       context: ./frontend/borrowing-mf
     container_name: borrowing-mf
     ports:
-      - "3002:80"
+      - "3002:8080"
 
   user-management-mf:
     build:
       context: ./frontend/user-management-mf
     container_name: user-management-mf
     ports:
-      - "3003:80"
+      - "3003:8080"
 
   shell:
     build:
@@ -147,7 +147,7 @@ services:
       - borrowing-mf
       - web-bff
     ports:
-      - "3004:80"
+      - "3004:8080"
 
 volumes:
   game_catalog_data:
