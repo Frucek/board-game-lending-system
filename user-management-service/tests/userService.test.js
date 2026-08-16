@@ -9,14 +9,8 @@ const {
 } = require("../src/userService");
 
 
-beforeAll(() => {
-
-    return new Promise((resolve) => {
-
-        database.initializeDatabase();
-
-        setTimeout(resolve, 100);
-    });
+beforeAll(async () => {
+    await database.initializeDatabase();
 });
 
 
@@ -115,7 +109,7 @@ describe("User Service", () => {
         expect(user.status)
             .toBe("ACTIVE");
 
-        expect(user.borrowingLimit)
+        expect(user.borrowing_limit)
             .toBe(3);
     });
 

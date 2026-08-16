@@ -3,7 +3,6 @@ const {
     markPublished
 } = require("./outbox");
 
-
 const {
     publishEvent
 } = require("./messageBroker");
@@ -16,67 +15,89 @@ const POLLING_INTERVAL =
     );
 
 
+function getPendingEventsPromise() {
+
+    return new Promise((resolve, reject) => {
+
+        getPendingEvents(
+            (error, events) => {
+
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                resolve(events);
+            }
+        );
+    });
+}
+
+
+function markPublishedPromise(id) {
+
+    return new Promise((resolve, reject) => {
+
+        markPublished(
+            id,
+            error => {
+
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                resolve();
+            }
+        );
+    });
+}
+
+
 async function processOutbox() {
 
-    getPendingEvents(
-        async (error, events) => {
+    let events;
 
-            if (error) {
+    try {
 
-                console.error(
-                    "Failed to read outbox:",
-                    error
-                );
+        events =
+            await getPendingEventsPromise();
 
-                return;
-            }
+    } catch (error) {
 
+        console.error(
+            "Failed to read outbox:",
+            error
+        );
 
-            for (
-                const event
-                of events
-            ) {
-
-                try {
-
-                    await publishEvent(
-                        event
-                    );
+        return;
+    }
 
 
-                    markPublished(
-                        event.id,
-                        (markError) => {
+    for (const event of events) {
 
-                            if (markError) {
+        try {
 
-                                console.error(
-                                    `Failed to mark event ${event.id} as published:`,
-                                    markError
-                                );
-                            }
-                        }
-                    );
+            await publishEvent(event);
 
-                } catch (publishError) {
+            await markPublishedPromise(
+                event.id
+            );
 
-                    console.error(
-                        `Failed to publish outbox event ${event.id}:`,
-                        publishError.message
-                    );
+        } catch (error) {
 
-                    /*
-                     * Keep published = 0.
-                     *
-                     * The event will be retried
-                     * during the next polling cycle.
-                     */
+            console.error(
+                `Failed to process outbox event ${event.id}:`,
+                error.message
+            );
 
-                    break;
-                }
-            }
+            /*
+             * Stop here so the failed event
+             * remains pending and ordering is preserved.
+             */
+            break;
         }
-    );
+    }
 }
 
 
@@ -86,8 +107,7 @@ function startOutboxPublisher() {
         `Transactional Outbox publisher started. Polling every ${POLLING_INTERVAL} ms`
     );
 
-
-    setInterval(
+    return setInterval(
         processOutbox,
         POLLING_INTERVAL
     );
@@ -95,8 +115,6 @@ function startOutboxPublisher() {
 
 
 module.exports = {
-
     startOutboxPublisher,
-
     processOutbox
 };

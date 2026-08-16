@@ -8,17 +8,9 @@ const {
 } = require("../src/database");
 
 
-beforeAll(() => {
-
-    return new Promise((resolve) => {
-
-        initializeDatabase();
-
-        // Give SQLite a moment to finish CREATE TABLE statements.
-        setTimeout(resolve, 100);
-    });
+beforeAll(async () => {
+    await database.initializeDatabase();
 });
-
 
 beforeEach(() => {
 

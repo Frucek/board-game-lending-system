@@ -1,53 +1,69 @@
-const sqlite3 = require("sqlite3").verbose();
+const sqlite3 =
+    require("sqlite3").verbose();
 
-const DATABASE_PATH = process.env.DATABASE_PATH || "/data/users.db";
 
-const database = new sqlite3.Database(DATABASE_PATH);
+const DATABASE_PATH =
+    process.env.DATABASE_PATH ||
+    "/data/users.db";
+
+
+const database =
+    new sqlite3.Database(
+        DATABASE_PATH
+    );
+
 
 function initializeDatabase() {
-    database.serialize(() => {
 
-        /*
-         * ==========================================
-         * USERS
-         * ==========================================
-         */
+    return new Promise(
+        (resolve, reject) => {
 
-        database.run(`
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL UNIQUE,
-                status TEXT NOT NULL,
-                borrowing_limit INTEGER NOT NULL
-            )
-        `);
+            database.serialize(() => {
 
-        /*
-         * ==========================================
-         * TRANSACTIONAL OUTBOX
-         * ==========================================
-         */
+                database.run(
+                    `
+                    CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        email TEXT NOT NULL UNIQUE,
+                        status TEXT NOT NULL,
+                        borrowing_limit INTEGER NOT NULL
+                    )
+                    `,
+                    error => {
 
-        database.run(`
-            CREATE TABLE IF NOT EXISTS outbox (
+                        if (error) {
+                            reject(error);
+                            return;
+                        }
 
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        database.run(
+                            `
+                            CREATE TABLE IF NOT EXISTS outbox (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                event_type TEXT NOT NULL,
+                                payload TEXT NOT NULL,
+                                created_at TEXT NOT NULL,
+                                published INTEGER NOT NULL DEFAULT 0
+                            )
+                            `,
+                            error => {
 
-                event_type TEXT NOT NULL,
+                                if (error) {
+                                    reject(error);
+                                    return;
+                                }
 
-                payload TEXT NOT NULL,
-
-                created_at TEXT NOT NULL,
-
-                published INTEGER NOT NULL DEFAULT 0
-            )
-        `);
-
-
-
-    });
+                                resolve();
+                            }
+                        );
+                    }
+                );
+            });
+        }
+    );
 }
+
 
 module.exports = {
     database,

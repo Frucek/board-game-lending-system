@@ -7,16 +7,9 @@ const {
 } = require("../src/outbox");
 
 
-beforeAll(() => {
-
-    return new Promise((resolve) => {
-
-        database.initializeDatabase();
-
-        setTimeout(resolve, 100);
-    });
+beforeAll(async () => {
+    await database.initializeDatabase();
 });
-
 
 beforeEach(() => {
 
