@@ -52,5 +52,5 @@ jobs:
             context: ./borrowing-service
             push: true
             tags: |
-              ${{ secrets.DOCKERHUB_USERNAME }}/board-game-borrowing-service:latest
-              ${{ secrets.DOCKERHUB_USERNAME }}/board-game-borrowing-service:${{ github.sha }}
+              ${{ secrets.DOCKERHUB_USERNAME }}/borrowing-service:latest
+              ${{ secrets.DOCKERHUB_USERNAME }}/borrowing-service:${{ github.sha }}
