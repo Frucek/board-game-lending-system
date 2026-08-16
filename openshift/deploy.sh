@@ -37,7 +37,7 @@ create_path_route() {
     oc delete route "$name"
   fi
 
-  oc create route edge "$name" \
+  MSYS_NO_PATHCONV=1 oc create route edge "$name" \
     --service="$service" \
     --port="$port" \
     --hostname="$HOST" \

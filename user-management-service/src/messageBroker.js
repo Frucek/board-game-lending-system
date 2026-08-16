@@ -8,7 +8,6 @@ let client = null;
 
 
 function connectBroker() {
-
     const host =
         process.env.ACTIVEMQ_HOST ||
         "localhost";
@@ -19,44 +18,40 @@ function connectBroker() {
             61613
         );
 
+    console.log(
+        `Connecting to ActiveMQ at ${host}:${port}...`
+    );
 
     stompit.connect(
         {
             host,
             port
         },
-
         (error, connection) => {
-
             if (error) {
-
                 console.error(
                     "ActiveMQ connection error:",
                     error.message
                 );
 
                 connected = false;
+                client = null;
+
+                setTimeout(connectBroker, 5000);
 
                 return;
             }
 
-
-            client =
-                connection;
-
-            connected =
-                true;
-
+            client = connection;
+            connected = true;
 
             console.log(
                 "Connected to ActiveMQ"
             );
 
-
             connection.on(
                 "error",
                 (error) => {
-
                     console.error(
                         "ActiveMQ error:",
                         error.message
@@ -66,18 +61,17 @@ function connectBroker() {
                 }
             );
 
-
             connection.on(
                 "close",
                 () => {
-
                     console.log(
                         "ActiveMQ connection closed"
                     );
 
                     connected = false;
-
                     client = null;
+
+                    setTimeout(connectBroker, 5000);
                 }
             );
         }
