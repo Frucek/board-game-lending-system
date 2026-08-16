@@ -9,3 +9,5 @@ RUN apt-get update \
 COPY activemq.xml /opt/apache-activemq/conf/activemq.xml
 
 RUN chgrp -R 0 /opt/apache-activemq && chmod -R g=u /opt/apache-activemq
+
+ENV ACTIVEMQ_OPTS_MEMORY="-Xms64M -Xmx256M"
