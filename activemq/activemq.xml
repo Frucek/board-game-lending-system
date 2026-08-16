@@ -9,14 +9,13 @@
          http://activemq.apache.org/schema/core
          http://activemq.apache.org/schema/core/activemq-core.xsd">
 
-    <amq:broker brokerName="localhost" dataDirectory="${activemq.data}">
+    <amq:broker brokerName="localhost" dataDirectory="/opt/apache-activemq/data">
 
         <amq:persistenceAdapter>
-            <amq:kahaDB directory="${activemq.data}/kahadb"/>
+            <amq:kahaDB directory="/opt/apache-activemq/data/kahadb"/>
         </amq:persistenceAdapter>
 
         <amq:transportConnectors>
-
             <amq:transportConnector
                 name="openwire"
                 uri="tcp://0.0.0.0:61616"/>
@@ -24,9 +23,7 @@
             <amq:transportConnector
                 name="stomp"
                 uri="stomp://0.0.0.0:61613"/>
-
         </amq:transportConnectors>
 
     </amq:broker>
-
 </beans>
