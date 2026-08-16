@@ -2,7 +2,7 @@ import sqlite3
 from pathlib import Path
 
 
-DATABASE_PATH = Path("/tmp/borrowings.db")
+DATABASE_PATH = Path("/data/borrowings.db")
 
 
 def get_connection():
