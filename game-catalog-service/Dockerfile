@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN sh mwn clean package -DskipTests
+RUN sh mwnw clean package -DskipTests
 
 FROM eclipse-temurin:21-jre
 
