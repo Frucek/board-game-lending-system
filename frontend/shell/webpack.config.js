@@ -28,13 +28,13 @@ const remote = (name, url) =>
     })`;
 
 const CATALOG_URL =
-    process.env.CATALOG_URL || "http://localhost:3001";
+    process.env.CATALOG_URL || "/catalog";
 
 const BORROWING_URL =
-    process.env.BORROWING_URL || "http://localhost:3002";
+    process.env.BORROWING_URL || "/borrowing";
 
 const USERS_URL =
-    process.env.USERS_URL || "http://localhost:3003";
+    process.env.USERS_URL || "/users";
 
 
 module.exports = {

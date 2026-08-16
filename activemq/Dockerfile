@@ -7,3 +7,5 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY activemq.xml /opt/apache-activemq/conf/activemq.xml
+
+RUN chgrp -R 0 /opt/apache-activemq && chmod -R g=u /opt/apache-activemq
