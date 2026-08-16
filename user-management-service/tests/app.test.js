@@ -9,7 +9,7 @@ const {
 
 
 beforeAll(async () => {
-    await database.initializeDatabase();
+    await initializeDatabase();
 });
 
 beforeEach(() => {
