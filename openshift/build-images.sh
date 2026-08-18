@@ -17,17 +17,17 @@ build() {
   oc start-build "$name" --from-dir="$ROOT/$dir" --follow
 }
 
-# Build sequentially to avoid exhausting the free sandbox quota.
-#build game-catalog-service game-catalog-service
-#build borrowing-service borrowing-service
+Build sequentially to avoid exhausting the free sandbox quota.
+build game-catalog-service game-catalog-service
+build borrowing-service borrowing-service
 build user-management-service user-management-service
-#build web-bff web-bff
-#build mobile-bff mobile-bff
-#build activemq activemq
-#build shell frontend/shell
-#build catalog-mf frontend/catalog-mf
-#build borrowing-mf frontend/borrowing-mf
-#build user-management-mf frontend/user-management-mf
+build web-bff web-bff
+build mobile-bff mobile-bff
+build activemq activemq
+build shell frontend/shell
+build catalog-mf frontend/catalog-mf
+build borrowing-mf frontend/borrowing-mf
+build user-management-mf frontend/user-management-mf
 
 echo
 echo "All images built."
